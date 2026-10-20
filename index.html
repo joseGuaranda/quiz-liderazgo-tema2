@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quiz · Liderazgo, Tema 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF3F8; --surface:#FFFFFF; --ink:#1D2B4F; --muted:#5B6B84; --line:#D3DDE9;
+  --ok:#2F7D5B; --ok-bg:#E3F2EA; --bad:#C2392F; --bad-bg:#FBE7E5; --accent:#1D2B4F;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121A2E; --surface:#1B2540; --ink:#E7ECF5; --muted:#9AA8C0; --line:#2E3A58;
+    --ok:#6CC79C; --ok-bg:#183A2C; --bad:#F08A80; --bad-bg:#43201E; --accent:#E7ECF5;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121A2E; --surface:#1B2540; --ink:#E7ECF5; --muted:#9AA8C0; --line:#2E3A58;
+  --ok:#6CC79C; --ok-bg:#183A2C; --bad:#F08A80; --bad-bg:#43201E; --accent:#E7ECF5;
+  color-scheme:dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1.0625rem;line-height:1.55}
+main{max-width:38rem;margin:0 auto;padding:1.5rem 1.25rem 3rem}
+h1{font-family:"Bricolage Grotesque","Atkinson Hyperlegible",sans-serif;font-weight:800;font-size:clamp(1.75rem,6vw,2.4rem);line-height:1.1;margin:.5rem 0 .4rem;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:0 0 1.5rem}
+.track{display:flex;gap:6px;margin-bottom:1.25rem}
+.track span{flex:1;height:6px;border-radius:3px;background:var(--line);transition:background .25s}
+.track span.ok{background:var(--ok)}
+.track span.bad{background:var(--bad)}
+.track span.now{background:var(--muted)}
+.count{font-size:.9rem;color:var(--muted);margin:0 0 .35rem}
+.q{font-family:"Bricolage Grotesque","Atkinson Hyperlegible",sans-serif;font-weight:600;font-size:1.3rem;line-height:1.3;margin:0 0 1.1rem}
+.opts{display:grid;gap:.6rem}
+.opt{appearance:none;text-align:left;font:inherit;color:var(--ink);background:var(--surface);border:2px solid var(--line);border-radius:12px;padding:.85rem 1rem;cursor:pointer;transition:border-color .15s}
+.opt:hover:not(:disabled){border-color:var(--muted)}
+.opt:focus-visible,.btn:focus-visible{outline:3px solid var(--muted);outline-offset:2px}
+.opt:disabled{cursor:default}
+.opt.right{border-color:var(--ok);background:var(--ok-bg)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-bg)}
+.why{margin-top:1rem;padding:.9rem 1rem;border-left:4px solid var(--ok);background:var(--surface);border-radius:0 10px 10px 0}
+.why.badw{border-left-color:var(--bad)}
+.why strong{display:block;margin-bottom:.2rem}
+.btn{appearance:none;font:inherit;font-weight:700;margin-top:1.25rem;width:100%;padding:.9rem 1rem;border-radius:12px;border:none;background:var(--accent);color:var(--bg);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border:2px solid var(--line);margin-top:.6rem}
+.score{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:4rem;line-height:1;margin:.5rem 0}
+.review{margin-top:1.5rem;display:grid;gap:.75rem}
+.review div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:.8rem 1rem}
+.review p{margin:.2rem 0}
+.review .ans{color:var(--ok);font-weight:700}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <h1>Las habilidades del líder</h1>
+  <p class="sub">Certificado en Liderazgo · Tema 2. Elige una respuesta y revisa la explicación.</p>
+  <div class="track" id="track"></div>
+  <div id="app"></div>
+</main>
+<script>
+const Q=[
+ {q:"¿Qué es un BHAG según Jim Collins?",o:["Un presupuesto anual detallado","Una meta grande, peluda y audaz: clara, que lleva a la acción y se dice en pocas palabras","Un sistema de premios y castigos","Una lista de tareas diarias"],a:1,e:"La gran meta retadora que genera compromiso. Ej.: la NASA y la Luna."},
+ {q:"En los OKR, ¿qué representa el resultado clave?",o:["El «qué» se quiere lograr","El «cómo», concreto y medible","El presupuesto","La visión de la empresa"],a:1,e:"Objetivo = qué; resultado clave = cómo. Los creó Andy Grove (Intel) a partir del MBO de Drucker."},
+ {q:"En este curso, ¿qué significa la «A» del SMART?",o:["Alcanzable","Ambiciosa","Orientadas a la acción","Aprobada"],a:2,e:"Específicas, medibles, orientadas a la acción, realistas y con plazo. Lo de «poder lograrse» es la R."},
+ {q:"¿Qué genera la gestión por objetivos (MBO) de Drucker?",o:["Que el líder decida todo","Responsabilidad individual, dirección y control de resultados","Seguimiento diario de tareas","Consenso obligatorio"],a:1,e:"Drucker la definió en The Practice of Management en los años 50."},
+ {q:"¿Por qué evaluar las metas solo al final del año es un error?",o:["Porque es caro","Porque puede ser muy tarde para corregir","Porque la gente se aburre","No es un error"],a:1,e:"El líder efectivo conversa constantemente: recursos, esfuerzo, si la meta era realista y la motivación."},
+ {q:"¿Cuáles son las 3 recomendaciones para dar buena retroalimentación?",o:["Rápida, breve y escrita","Equilibrada, con diálogo y con seguimiento","Positiva, pública y frecuente","Formal, anual y documentada"],a:1,e:"Siempre sobre hechos concretos. No es un sermón: es una conversación y aprendizaje mutuo."},
+ {q:"Alguien dice «no soy bueno para los números». ¿Qué creencia es?",o:["Control externo","Diálogo interno negativo","Evaluación universal","Mentalidad de crecimiento"],a:2,e:"Juzga a toda la persona por un rasgo. Se debate con una frase menos absoluta: «hasta ahora practiqué poco»."},
+ {q:"«No puedo vender porque los precios son muy altos» es un ejemplo de…",o:["Control externo","Evaluación universal","Teoría Y","Reciprocidad"],a:0,e:"Atribuye todo a factores externos. El líder pregunta qué sí se puede hacer con esa realidad."},
+ {q:"En una conversación de coaching, el líder…",o:["Da la solución rápido","Habla la mayor parte del tiempo","Escucha la mayor parte del tiempo y hace preguntas abiertas","Evita los silencios"],a:2,e:"Escucha activa: contacto visual, repetir, pausas, lenguaje corporal. Preguntas breves que no se responden con sí o no."},
+ {q:"En el contexto complicado…",o:["Se sabe lo que se ignora y hace falta un experto","No se sabe lo que se ignora","Hay cambio constante y urgencia","Todo es conocido y repetitivo"],a:0,e:"Complicado = experto. Complejo = experimentar. Caótico = actuar primero. Simple = categorizar."},
+ {q:"En una crisis caótica, ¿qué hace primero el líder?",o:["Analiza a fondo","Forma un grupo de expertos","Actúa, evalúa y ajusta para restablecer el orden","Espera a tener toda la información"],a:2,e:"A más caos, antes se actúa. Comunicación clara y directa."},
+ {q:"«Diversidad en el consejo, unidad en el comando» significa…",o:["Que decide la mayoría","Escuchar muchas opiniones al deliberar y comprometerse todos con lo decidido","Que el líder no escucha","Que cada uno ejecuta a su manera"],a:1,e:"Frase atribuida a Ciro II el Grande. Cierra la toma de decisiones."},
+ {q:"Empezar pidiendo un compromiso pequeño para luego lograr uno grande aplica el principio de…",o:["Escasez","Consistencia","Autoridad","Consenso"],a:1,e:"Los 6 de Cialdini: reciprocidad, escasez, autoridad, consistencia, simpatía y consenso."},
+ {q:"«Gente como tú ya lo hace» es el principio de…",o:["Simpatía","Reciprocidad","Consenso","Autoridad"],a:2,e:"Mostrar que gente parecida adoptó la conducta aumenta mucho la persuasión."},
+ {q:"Según Herzberg, el salario es un factor…",o:["De motivación","De higiene","De propósito","De maestría"],a:1,e:"Higiene = alrededor del trabajo (salario, jefe, condiciones). Motivación = el trabajo mismo (logro, reconocimiento, responsabilidad, crecimiento)."},
+ {q:"¿Qué dice la teoría X de McGregor?",o:["El esfuerzo en el trabajo es natural","La gente busca responsabilidad","A la gente no le gusta trabajar y hay que coaccionarla y controlarla","El trabajo debe ser retador"],a:2,e:"El líder X motiva con premios y castigos; el Y, con trabajo retador y desarrollo."},
+ {q:"Según Alfie Kohn, las recompensas…",o:["Son la mejor forma de motivar","Matan la motivación intrínseca y terminan siendo un castigo","Mejoran las relaciones","Hacen que la gente tome más riesgos"],a:1,e:"También dañan relaciones, sustituyen al liderazgo y no cambian las actitudes."},
+ {q:"¿Cuáles son los 3 factores de motivación de Daniel Pink?",o:["Autonomía, reconocimiento y propósito","Recompensa, maestría y propósito","Autonomía, maestría y propósito","Salario, retos y equipo"],a:2,e:"Necesarios en trabajos que requieren pensar. Maestría = como en los videojuegos: retos que suben de nivel."}
+];
+let i=0,res=[];
+const app=document.getElementById('app'),track=document.getElementById('track');
+function drawTrack(){track.innerHTML=Q.map((_,k)=>`<span class="${res[k]===true?'ok':res[k]===false?'bad':k===i?'now':''}"></span>`).join('')}
+function show(){
+  drawTrack();
+  const it=Q[i];
+  app.innerHTML=`<p class="count">Pregunta ${i+1} de ${Q.length}</p><p class="q">${it.q}</p><div class="opts">${it.o.map((t,k)=>`<button class="opt" data-k="${k}">${t}</button>`).join('')}</div><div id="fb"></div>`;
+  app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>pick(+b.dataset.k));
+  app.querySelector('.opt').focus({preventScroll:true});
+}
+function pick(k){
+  const it=Q[i],ok=k===it.a;res[i]=ok;
+  app.querySelectorAll('.opt').forEach((b,j)=>{b.disabled=true;if(j===it.a)b.classList.add('right');else if(j===k)b.classList.add('wrong')});
+  const last=i===Q.length-1;
+  document.getElementById('fb').innerHTML=`<div class="why ${ok?'':'badw'}"><strong>${ok?'Correcto':'No es esa'}</strong>${it.e}</div><button class="btn" id="next">${last?'Ver resultado':'Siguiente pregunta'}</button>`;
+  drawTrack();
+  const n=document.getElementById('next');n.focus({preventScroll:true});
+  n.onclick=()=>{if(last)end();else{i++;show()}};
+}
+function end(){
+  drawTrack();
+  const good=res.filter(Boolean).length,bad=Q.map((q,k)=>[q,k]).filter(([,k])=>!res[k]);
+  const msg=good===Q.length?'Perfecto, dominas el tema.':good>=Q.length*0.7?'Muy bien. Repasa las que fallaste.':'Vale la pena darle otra leída al tema en Notion.';
+  app.innerHTML=`<p class="count">Tu resultado</p><p class="score">${good}/${Q.length}</p><p>${msg}</p>${bad.length?`<div class="review">${bad.map(([q])=>`<div><p>${q.q}</p><p class="ans">${q.o[q.a]}</p></div>`).join('')}</div>`:''}<button class="btn" id="again">Repetir el quiz</button>`;
+  document.getElementById('again').onclick=()=>{i=0;res=[];show()};
+}
+show();
+</script>
+</body>
+</html>
